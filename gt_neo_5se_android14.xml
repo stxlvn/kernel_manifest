@@ -3,7 +3,7 @@
   <remote fetch="https://git.codelinaro.org/clo/la" name="clo" review="codelinaro.org"/>
   <default remote="clo" revision="kernel.build.lnx.1.0" sync-j="8"/>
   <remote fetch="https://github.com/tonyst2" name="origin"/>
-  <project remote="origin" name="gt_neo5se-android14-kernel-source" path="kernel_platform/common" revision="nightly"/>
+  <project remote="origin" name="gt_neo5se-android14-kernel-source" path="kernel_platform/common" revision="master"/>
   <remote fetch="https://github.com/realme-kernel-opensource" name="origin"/>
   <project remote="origin" name="realme_GTneo5SE_5G-AndroidU-vendor-source" path="./" revision="master"/>
   <project remote="clo" name="kernel/prebuilts/build-tools" path="kernel_platform/prebuilts/kernel-build-tools" revision="10ab783184f77d3ea15bf666426a7138b0f62bfc" upstream="refs/heads/ks-kernel.lnx.1.0.r1-rel"/>
