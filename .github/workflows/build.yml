@@ -86,6 +86,14 @@ jobs:
       - name: Build realme10 (mt6789)
         if: env.DEVICE == 'mt6789'
         working-directory: workspace/realme10_kernel_source
+        # gki_defconfig may still print a couple of harmless Kconfig
+        # "type redefinition" warnings (CUSTOM_KERNEL_SENSORHUB, NANOHUB,
+        # OPLUS_FINGERPRINT_GKI_ENABLE) -- the vendor tree ships two sensor
+        # driver generations (sensors-1.0 and sensor/2.0) that both source
+        # some of the same symbol names, and uff_fp_drivers is an
+        # unmodified vendor-source symlink we don't own. .config still
+        # gets written and the build proceeds either way. Only worth
+        # investigating if this step actually fails.
         env:
           # build_redunion.sh symlinks VENDOR_ROOT itself (as-is, no
           # appended "vendor/") to ../vendor next to the kernel repo, and
