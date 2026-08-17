@@ -14,7 +14,8 @@
 
   <!-- Unmodified OPLUS vendor drivers/blobs (e.g. drivers/soc/oplus/storage)
        this kernel's build_redunion.sh expects via VENDOR_ROOT, synced as a
-       sibling directory named "vendor". -->
-  <project remote="realme" name="realme_gt_neo5se-AndroidV-vendor-source" path="vendor" revision="master" />
+       sibling directory named "vendor-source" (kept consistent with the
+       mt6789 branch's naming). -->
+  <project remote="realme" name="realme_gt_neo5se-AndroidV-vendor-source" path="vendor-source" revision="master" />
 
 </manifest>
