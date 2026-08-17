@@ -87,7 +87,7 @@ jobs:
         if: env.DEVICE == 'mt6789'
         working-directory: workspace/realme10_kernel_source
         env:
-          VENDOR_ROOT: ${{ github.workspace }}/workspace/vendor
+          VENDOR_ROOT: ${{ github.workspace }}/workspace/vendor-source
           TOOLCHAIN_BIN: ${{ github.workspace }}/workspace/toolchain_bin
         run: ./build_redunion.sh --jobs "$(nproc)"
 

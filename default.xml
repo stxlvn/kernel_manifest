@@ -15,8 +15,11 @@
 
   <!-- Unmodified OPLUS vendor drivers/blobs this kernel's Kconfig/Makefile
        symlinks reference at build time (e.g. drivers/soc/oplus/storage).
-       build_redunion.sh's VENDOR_ROOT defaults to "$REPO_ROOT/../vendor",
-       so this must sync as a sibling directory named "vendor". -->
-  <project remote="realme" name="realme10-AndroidU-vendor-source" path="vendor" revision="master" />
+       Named "vendor-source" (not "vendor") because build_redunion.sh itself
+       creates a "vendor" symlink next to the kernel repo pointing at
+       $VENDOR_ROOT -- if VENDOR_ROOT were already at that same "vendor"
+       path, the self-referential ln would fail ("cannot overwrite
+       directory"). Point VENDOR_ROOT at this "vendor-source" checkout. -->
+  <project remote="realme" name="realme10-AndroidU-vendor-source" path="vendor-source" revision="master" />
 
 </manifest>

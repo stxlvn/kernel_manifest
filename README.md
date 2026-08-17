@@ -9,6 +9,8 @@ repo sync -j8
 ```
 
 Each branch syncs the kernel source repo as the top-level build root
-(`build_redunion.sh` lives there) plus the unmodified OPLUS `vendor-source`
-repo as a sibling `vendor/` directory, matching what each `build_redunion.sh`
-expects out of the box.
+(`build_redunion.sh` lives there) plus the unmodified OPLUS vendor repo as a
+sibling `vendor-source/` directory. Point `VENDOR_ROOT` at that directory
+when running `build_redunion.sh` (the script itself creates its own
+`vendor` symlink next to the kernel repo, so `vendor-source` must not share
+that name).
