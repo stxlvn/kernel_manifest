@@ -1,0 +1,115 @@
+name: Build RedUnion kernel
+
+on:
+  workflow_dispatch:
+    inputs:
+      device:
+        description: "Device to build"
+        required: true
+        type: choice
+        options:
+          - mt6789
+          - sm8475
+        default: mt6789
+
+concurrency:
+  group: build-${{ github.event.inputs.device }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DEVICE: ${{ github.event.inputs.device }}
+    steps:
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force || true
+
+      - name: Add swap (kernel LTO can be memory-hungry)
+        run: |
+          sudo fallocate -l 8G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+
+      - name: Install repo tool
+        run: |
+          curl -s https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo
+          chmod +x /usr/local/bin/repo
+          git config --global user.email "ci@stxlvn.local"
+          git config --global user.name "ci"
+          git config --global color.ui false
+
+      - name: repo sync
+        run: |
+          mkdir -p workspace && cd workspace
+          repo init -u https://github.com/stxlvn/kernel_manifest -b "realme/$DEVICE" --depth=1
+          repo sync -j4 --force-sync
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y binutils-aarch64-linux-gnu python3 zip zstd
+
+      - name: Install Neutron Clang
+        if: env.DEVICE == 'mt6789'
+        run: |
+          mkdir -p toolchain/neutron-clang
+          cd toolchain/neutron-clang
+          url=$(curl -s https://api.github.com/repos/Neutron-Toolchains/clang-build-catalogue/releases/latest \
+            | grep browser_download_url | grep -o 'https://[^"]*tar\.zst' | head -1)
+          curl -sL "$url" -o clang.tar.zst
+          tar --use-compress-program=unzstd -xf clang.tar.zst
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p workspace/toolchain_bin
+          for t in clang ld.lld llvm-ar llvm-nm llvm-objcopy llvm-objdump llvm-readelf llvm-strip; do
+            ln -sf "$GITHUB_WORKSPACE/toolchain/neutron-clang/bin/$t" workspace/toolchain_bin/"$t"
+          done
+          for t in llvm-cov llvm-addr2line llvm-ranlib; do
+            src=$(command -v "$t" || true)
+            [ -n "$src" ] && ln -sf "$src" workspace/toolchain_bin/"$t"
+          done
+          ln -sf "$(command -v python3)" workspace/toolchain_bin/python
+
+      - name: Install distro clang
+        if: env.DEVICE == 'sm8475'
+        run: sudo apt-get install -y clang lld llvm
+
+      - name: Build realme10 (mt6789)
+        if: env.DEVICE == 'mt6789'
+        working-directory: workspace/realme10_kernel_source
+        env:
+          VENDOR_ROOT: ${{ github.workspace }}/workspace/vendor
+          TOOLCHAIN_BIN: ${{ github.workspace }}/workspace/toolchain_bin
+        run: ./build_redunion.sh --jobs "$(nproc)"
+
+      - name: Package realme10 AnyKernel3 zip
+        if: env.DEVICE == 'mt6789'
+        run: |
+          git clone --depth 1 https://github.com/stxlvn/AnyKernel3.git workspace/AnyKernel3
+          rm -rf workspace/AnyKernel3/.git
+          cp workspace/realme10_kernel_source/out/arch/arm64/boot/Image.gz workspace/AnyKernel3/Image.gz
+          cd workspace/AnyKernel3
+          zip -r9 "$GITHUB_WORKSPACE/RedUnion-RMX3630-$(date +%Y%m%d).zip" . -x ".git*"
+
+      - name: Build GT Neo5 SE (sm8475)
+        if: env.DEVICE == 'sm8475'
+        working-directory: workspace/gt_neo5se_common_source
+        env:
+          VENDOR_ROOT: ${{ github.workspace }}/workspace/vendor
+        run: ./build_redunion.sh
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: redunion-${{ env.DEVICE }}-${{ github.run_number }}
+          path: |
+            *.zip
+            workspace/*.zip
+          if-no-files-found: error
+          retention-days: 14
