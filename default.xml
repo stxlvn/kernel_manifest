@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+
+  <!-- realme 10 (RMX3630, MediaTek Helio G99/MT6789) -->
+
+  <remote name="stxlvn" fetch="https://github.com/stxlvn/" />
+  <remote name="realme" fetch="https://github.com/realme-kernel-opensource/" />
+  <default remote="stxlvn" revision="master" sync-j="8" />
+
+  <!-- RedUnion kernel source: ACK android12-5.10.264_r00 merged onto realme's
+       stock 5.10.198 tree, full preserved git history, SukiSU-Ultra + SUSFS +
+       KPM + NTSync + perf/battery patches. This is the build root
+       (build_redunion.sh lives here). -->
+  <project remote="stxlvn" name="realme10_kernel_source" path="realme10_kernel_source" revision="master" />
+
+  <!-- Unmodified OPLUS vendor drivers/blobs this kernel's Kconfig/Makefile
+       symlinks reference at build time (e.g. drivers/soc/oplus/storage).
+       build_redunion.sh's VENDOR_ROOT defaults to "$REPO_ROOT/../vendor",
+       so this must sync as a sibling directory named "vendor". -->
+  <project remote="realme" name="realme10-AndroidU-vendor-source" path="vendor" revision="master" />
+
+</manifest>
