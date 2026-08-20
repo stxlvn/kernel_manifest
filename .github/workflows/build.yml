@@ -86,22 +86,7 @@ jobs:
       - name: Build realme10 (mt6789)
         if: env.DEVICE == 'mt6789'
         working-directory: workspace/realme10_kernel_source
-        # gki_defconfig may still print a couple of harmless Kconfig
-        # "type redefinition" warnings (CUSTOM_KERNEL_SENSORHUB, NANOHUB,
-        # OPLUS_FINGERPRINT_GKI_ENABLE) -- the vendor tree ships two sensor
-        # driver generations (sensors-1.0 and sensor/2.0) that both source
-        # some of the same symbol names, and uff_fp_drivers is an
-        # unmodified vendor-source symlink we don't own. .config still
-        # gets written and the build proceeds either way. Only worth
-        # investigating if this step actually fails.
         env:
-          # build_redunion.sh symlinks VENDOR_ROOT itself (as-is, no
-          # appended "vendor/") to ../vendor next to the kernel repo, and
-          # the kernel's relative symlinks (kernel/oplus_cpu etc.) expect
-          # that to directly contain oplus/kernel/... -- but the actual
-          # vendor-source repo nests its content one level deeper under a
-          # "vendor/" subfolder, so VENDOR_ROOT must point at that
-          # subfolder, not the checkout root.
           VENDOR_ROOT: ${{ github.workspace }}/workspace/vendor-source/vendor
           TOOLCHAIN_BIN: ${{ github.workspace }}/workspace/toolchain_bin
         run: ./build_redunion.sh --jobs "$(nproc)"
@@ -119,8 +104,6 @@ jobs:
         if: env.DEVICE == 'sm8475'
         working-directory: workspace/gt_neo5se_common_source
         env:
-          # this build_redunion.sh appends "vendor/oplus/kernel/storage"
-          # itself, so VENDOR_ROOT points at the checkout root here.
           VENDOR_ROOT: ${{ github.workspace }}/workspace/vendor-source
         run: ./build_redunion.sh
 
