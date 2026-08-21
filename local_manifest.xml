@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote name="github" fetch="https://github.com/" />
+
+  <project path="vendor/twrp" name="TeamWin/android_vendor_twrp" remote="github" revision="android-12.1" />
+  <project path="device/realme/RMX3630" name="stxlvn/recovery_device_realme_RMX3630" remote="github" revision="orangefox-12.1" />
+</manifest>
